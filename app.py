@@ -27,11 +27,12 @@ app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
-    SESSION_COOKIE_SECURE=False,   # Prod'da True yapın (HTTPS)
+    SESSION_COOKIE_SECURE=bool(os.environ.get('VERCEL')),  # Vercel'de otomatik HTTPS
     PERMANENT_SESSION_LIFETIME=timedelta(hours=2),
 )
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'bilmek.db')
+IS_VERCEL = bool(os.environ.get('VERCEL'))
+DB_PATH = '/tmp/bilmek.db' if IS_VERCEL else os.path.join(os.path.dirname(os.path.abspath(__file__)), 'bilmek.db')
 
 limiter = Limiter(
     get_remote_address,
@@ -221,7 +222,8 @@ def api_basvuru():
 @app.route('/')
 def index():
     try:
-        with open('bilmek-akademi.html', encoding='utf-8') as f:
+        html_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'bilmek-akademi.html')
+        with open(html_path, encoding='utf-8') as f:
             return f.read()
     except FileNotFoundError:
         return "<h1>Site dosyası bulunamadı.</h1>", 404
