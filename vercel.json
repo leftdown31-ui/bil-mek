@@ -9,7 +9,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "bilmek-backend.py"
+      "dest": "app.py"
     }
   ]
 }
